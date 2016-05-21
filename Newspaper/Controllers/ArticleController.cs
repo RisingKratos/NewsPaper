@@ -12,6 +12,16 @@ using PagedList;
 
 namespace Newspaper.Controllers
 {
+    public class MyType 
+    {
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public int Views { get; set; }
+        public Author Author { get; set; }
+        public Category Category { get; set; }
+        public int ID { get; set; }
+    }
     public class ArticleController : Controller
     {
         private NewsContext db = new NewsContext();
@@ -19,6 +29,7 @@ namespace Newspaper.Controllers
         // GET: Article
         public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            //@Html.DisplayNameFor(model => model.Views)    как правильно решить?
             ViewBag.CurrentSort = sortOrder;
 
             ViewBag.NameSortParameter = String.IsNullOrEmpty(sortOrder) ? "TitleDesc" : "";
@@ -65,10 +76,18 @@ namespace Newspaper.Controllers
                 case "CreatedDateDesc":
                     articles = articles.OrderByDescending(order => order.CreatedDate);
                     break;
+                case "Views":
+                    articles = articles.OrderBy(order => order.Views);
+                    break;
+                case "ViewsDesc":
+                    articles = articles.OrderByDescending(order => order.Views);
+                    break;
                 default:
                     articles = articles.OrderBy(order => order.Title);
                     break;
             }
+
+            articles.ToList().ForEach(article => { article.Content = article.Content.ToString().Substring(0, 25); } );
 
             int pageSize = 2;
             // if page has number - return it, else - 1, because page is nullable type

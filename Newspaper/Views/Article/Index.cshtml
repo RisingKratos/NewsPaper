@@ -1,7 +1,9 @@
-﻿@model IEnumerable<Newspaper.Models.Article>
-<!--It works without paging-->
+﻿@model PagedList.IPagedList<Newspaper.Models.Article>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
 @{
-    ViewBag.Title = "Students";
+    ViewBag.Title = "Articles";
 }
 
 <h2>Students</h2>
@@ -10,10 +12,10 @@
     @Html.ActionLink("Create New", "Create")
 </p>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Index", "Article", FormMethod.Get))
 {
     <p>
-        Find by name: @Html.TextBox("SearchString")
+        Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
         <input type="submit" value="Search" />
     </p>
 }
@@ -27,16 +29,17 @@
             Category
         </th>
         <th>
-            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.NameSortParameter })
+            @Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.NameSortParameter, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.ActionLink("Content", "Index", new { sortOrder = ViewBag.NameSortParameter })
+            @Html.ActionLink("Content", "Index", new { sortOrder = ViewBag.NameSortParameter, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.ActionLink("Created Date", "Index", new { sortOrder = ViewBag.NameSortParameter })
+            @Html.ActionLink("Created Date", "Index", new { sortOrder = ViewBag.NameSortParameter, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Views)
+            @Html.ActionLink("Views", "Index", new { sortOrder = ViewBag.NameSortParameter, currentFilter = ViewBag.CurrentFilter })
+            <!--Cannot bring it directly as property, only by strongly parametrized methods-->
         </th>
         <th></th>
     </tr>
@@ -53,7 +56,7 @@
             @Html.DisplayFor(modelItem => item.Title)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Content)
+            @Html.DisplayFor(modelItem => item.Content)...
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.CreatedDate)
@@ -70,3 +73,8 @@
 }
 
 </table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
