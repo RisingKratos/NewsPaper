@@ -12,6 +12,7 @@ using PagedList;
 
 namespace Newspaper.Controllers
 {
+    //Delete MyType later, unused because somehow it doesn't work with linq, unusual, unexpected constraints
     public class MyType 
     {
         public string Title { get; set; }
@@ -107,6 +108,9 @@ namespace Newspaper.Controllers
             {
                 return HttpNotFound();
             }
+            article.Views += 1;
+            db.Entry(article).State = EntityState.Modified;
+            db.SaveChanges();
             return View(article);
         }
 
@@ -154,6 +158,7 @@ namespace Newspaper.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Article article = db.Articles.Find(id);
+
             if (article == null)
             {
                 return HttpNotFound();
