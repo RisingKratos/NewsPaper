@@ -15,7 +15,8 @@ namespace Newspaper.Models
         [Column(TypeName = "Text")]
         [DataType(DataType.MultilineText)]
         public string Content { get; set; }
-
+        [NotMapped]
+        public string ShortContent { get { return (Content.Length > 25) ? Content.Substring(0, 25) : Content; } }
         public DateTime CreatedDate { get; set; }
         public int Views { get; set; }
         public int AuthorID { get; set; }

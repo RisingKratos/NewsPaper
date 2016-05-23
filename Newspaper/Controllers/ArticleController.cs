@@ -12,17 +12,6 @@ using PagedList;
 
 namespace Newspaper.Controllers
 {
-    //Delete MyType later, unused because somehow it doesn't work with linq, unusual, unexpected constraints
-    public class MyType 
-    {
-        public string Title { get; set; }
-        public string Content { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public int Views { get; set; }
-        public Author Author { get; set; }
-        public Category Category { get; set; }
-        public int ID { get; set; }
-    }
     public class ArticleController : Controller
     {
         private NewsContext db = new NewsContext();
@@ -34,7 +23,9 @@ namespace Newspaper.Controllers
             ViewBag.CurrentSort = sortOrder;
 
             ViewBag.NameSortParameter = String.IsNullOrEmpty(sortOrder) ? "TitleDesc" : "";
-            ViewBag.DateSortParm = sortOrder == "CreatedDate" ? "CreatedDateDesc" : "CreatedDate";
+            ViewBag.DateSortParameter = sortOrder == "CreatedDate" ? "CreatedDateDesc" : "CreatedDate";
+            ViewBag.ContentSortParameter = sortOrder == "Content" ? "ContentDesc" : "Content";
+            ViewBag.ViewSortParameter = sortOrder == "View" ? "ViewDesc" : "View";
 
             if (searchString != null)
             {
@@ -49,7 +40,7 @@ namespace Newspaper.Controllers
 
             var articles = db.Articles.Include(a => a.Author).Include(a => a.Category);
 
-            if (!String.IsNullOrWhiteSpace(searchString) && !String.IsNullOrWhiteSpace(searchString)) 
+            if (!String.IsNullOrWhiteSpace(searchString) && !String.IsNullOrEmpty(searchString)) 
             {
                 articles = articles.Where(student => student.Title.Contains(searchString) 
                     || student.Content.Contains(searchString) 
@@ -77,10 +68,10 @@ namespace Newspaper.Controllers
                 case "CreatedDateDesc":
                     articles = articles.OrderByDescending(order => order.CreatedDate);
                     break;
-                case "Views":
+                case "View":
                     articles = articles.OrderBy(order => order.Views);
                     break;
-                case "ViewsDesc":
+                case "ViewDesc":
                     articles = articles.OrderByDescending(order => order.Views);
                     break;
                 default:
@@ -88,15 +79,14 @@ namespace Newspaper.Controllers
                     break;
             }
 
-            articles.ToList().ForEach(article => { article.Content = article.Content.ToString().Substring(0, 25); } );
-
+            //articles.ToList().ForEach(article => { article.Content = article.Content.ToString().Substring(0, 25); } 
             int pageSize = 2;
             // if page has number - return it, else - 1, because page is nullable type
             int pageNumber = (page ?? 1);
             return View(articles.ToPagedList(pageNumber, pageSize));
         }
 
-        // GET: Article/Details/5
+        // GET: Article/Details/id
         public ActionResult Details(int? id)
         {
             if (id == null)
